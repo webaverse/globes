@@ -22,6 +22,7 @@ const globeSize = 0.3;
 const globeSeparationX = 1;
 const globeSeparationY = 0.3;
 const heightSegments = 32;
+const numTypes = 3;
 
 const vertexShader = `\
 precision highp float;
@@ -100,12 +101,13 @@ void main() {
   vec2 uv = vUv;
   float ti = float(vTextureIndex);
   uv.x = (uv.x + ti) / ${numFrames.toFixed(8)};
+  uv.x += 1./(8.*31.);
   c = texture2D(uTex, uv);
 
-  // c.rgb *= 1.2;
+  // c.rgb *= 1.5;
 
   gl_FragColor = c;
-  if (gl_FragColor.a < 0.5) {
+  if (gl_FragColor.a < 0.99) {
     discard;
   }
 
@@ -182,12 +184,11 @@ class GlobesMesh extends THREE.InstancedMesh {
     const procgen = useProcGen();
     const {alea} = procgen;
     const rng = alea('lol');
-    const numTypes = 3;
     this.particles = (() => {
       const particles = [];
-      for (let dx = -1; dx <= 1; dx += 2) {
-        for (let dy = 0; dy < heightSegments; dy++) {
-          const typeIndex = Math.floor(rng() * numTypes);
+      for (let dy = 0; dy < heightSegments; dy++) {
+        const typeIndex = Math.floor(rng() * numTypes);
+        for (let dx = -1; dx <= 1; dx += 2) {
           const particle = new Particle(dx, dy, typeIndex);
           particles.push(particle);
         }
@@ -200,6 +201,7 @@ class GlobesMesh extends THREE.InstancedMesh {
       const texture = new THREE.Texture(globesImage);
       texture.minFilter = THREE.NearestFilter;
       texture.magFilter = THREE.NearestFilter;
+      texture.encoding = THREE.sRGBEncoding;
       texture.needsUpdate = true;
       this.material.uniforms.uTex.value = texture;
       this.material.uniforms.uTex.needsUpdate = true;
