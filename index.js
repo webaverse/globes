@@ -144,7 +144,7 @@ const _makeMaterial = () => {
     },
     uTex: {
       value: null,
-      needsUpdate: false,
+      needsUpdate: true,
     },
     cameraBillboardQuaternion: {
       value: new THREE.Quaternion(),
